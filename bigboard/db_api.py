@@ -7,14 +7,17 @@ import requests
 import config
 
 
-DEFAULT_MASTER = [{'game_id': -1,'coordinator_ip':'192.168.15.200', 'name': 'standard', 'start_time': '2023-02-16 07:08:47.105881+00:00', 'finish_time': None, 'ends': 0, 'winner': '', 'competitors': [{'competitor_id': 1, 'player_id': 1, 'first_name': 'Player', 'last_name': '1', 'score': '0'}, {'competitor_id': 2, 'player_id': 2, 'first_name': 'Player', 'last_name': '2', 'score': '0'}]}]
-
-
 local_tz = pytz.timezone("Australia/Sydney")
 
 class Big_Board:
     def __init__(self):
         self.db_path = "bigboard.db"
+
+    def encode_if_required(self, str_val):
+        try:
+            return str_val.encode()
+        except Exception:
+            return str_val
 
 
     def setup(self, js):
@@ -22,20 +25,14 @@ class Big_Board:
         con.row_factory = sqlite3.Row
         cursor = con.cursor()
 
-        sql = "DELETE FROM masterboard;"
+        sql = "DELETE FROM scoreboards_layout;"
         cursor.execute(sql)
 
-        sql = "INSERT INTO masterboard (ip, rink_id) VALUES(?, ?);"
+        sql = "INSERT INTO scoreboards_layout (scoreboards_layout_id, layout, ip) VALUES(?, ?, ?);"
         game_id = cursor.executemany(sql, js)
 
         con.commit()
 
-
-    def encode_if_required(self, str_val):
-        try:
-            return str_val.encode()
-        except Exception:
-            return str_val
 
     def get_scoreboards(self):
         con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
@@ -51,18 +48,46 @@ class Big_Board:
 
         coordinator_ip = '192.168.15.200:8000'
 
-        Backboard = []
-        ips = cursor.execute('''SELECT * FROM bigboard''').fetchall()
+        Backboard = {
+                    'scoreboards':{},
+                    'layout':'',
+                    'masterboard':{
+                        'coordinator_ip':'',
+                        'ends':0,
+                        'competitors':{
+                            '1':{
+                                'score':0,
+                                "logo": "moama_steamers.png"
+                            },
+                            '2':{
+                                'score':0,
+                                "logo": "away.jpeg"
+                            },
+                        }
+                        }
+                    }
+
+        ips = cursor.execute('''SELECT * FROM scoreboards_layout''').fetchall()
+
         for ip in ips:
+            Backboard['layout'] = ip['layout']
             try:
-                scoreboard = requests.get('http://'+ip['ip']+'/get_game', timeout=0.2)
+                response = requests.get('http://'+ip['ip']+'/get_game', timeout=0.2)
+                scoreboard = json.loads(response.content)
             except:
                 scoreboard = config.DEFAULT_GAME
 
-            # scoreboard = json.loads(response.content)
-            # Backboard.append(scoreboard)
-            Backboard.append(scoreboard)
-        return json.dumps(Backboard, indent=4, sort_keys=True)
+            Backboard['scoreboards'][ip['scoreboards_layout_id']] = scoreboard
+
+            Backboard['masterboard']['ends'] += int(scoreboard['ends'])
+            Backboard['masterboard']['coordinator_ip'] = scoreboard['coordinator_ip']
+
+            for competitor in scoreboard['competitors']:
+                Backboard['masterboard']['competitors'][competitor]['score'] += int(scoreboard['competitors'][competitor]['score'])
+                Backboard['masterboard']['competitors'][competitor]['logo'] = scoreboard['competitors'][competitor]['logo']
+
+
+        return json.dumps(Backboard, indent=4)
 
 ############# YOU WILL NEED THIS ################
 

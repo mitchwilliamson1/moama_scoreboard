@@ -53,10 +53,13 @@ def get_finished_games():
 def get_rinks():
     return json.dumps(Games().get_rinks())
 
+@gamesapp.route("/get_layouts")
+def get_rinks():
+    return json.dumps(Games().get_layouts())
 
-@gamesapp.route("/get_masterboards")
+@gamesapp.route("/get_bigboards")
 def get_masterboard():
-    return json.dumps(Games().get_masterboards())
+    return json.dumps(Games().get_bigboards())
 
 
 @gamesapp.route("/get_sponsors")
@@ -144,13 +147,12 @@ def update_rink():
     return request.json
 
 
-@gamesapp.route("/update_masterboards", method=["POST", "OPTIONS"])
+@gamesapp.route("/update_layout", method=["POST", "OPTIONS"])
 def update_masterboards():
     if request.method == "OPTIONS":
         return
     request_params = json.loads(request.body.getvalue())
-    Games().update_masterboards(request_params['masterboard'])
-    Games().update_master_link(request_params['ips'], request_params['masterboard']['masterboard_id'])
+    Games().update_bigboards(json.loads(request_params['update_layout']))
     return request.json
 
 

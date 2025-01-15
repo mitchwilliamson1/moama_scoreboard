@@ -11,7 +11,7 @@
             <div class="p-0 m-0" >{{competitor.first_name[0]}}.{{competitor.last_name}}</div>
             <div>Score: {{competitor.score}}</div>
         </div>
-        <div class="col-2">{{game.sponsor.sponsor}}</div>
+        <div class="col-2">{{game.ends}}</div>
         <div class="col-2">{{game.rink.rink}}</div>
       </div>
 

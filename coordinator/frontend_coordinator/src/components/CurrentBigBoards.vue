@@ -1,48 +1,43 @@
 <template>
-  <div class="hello">
   <div class="container">
     <div class="row">
-      <h3 class="p-3">Rinks</h3>
+      <h3 class="p-3">Big Board Setup</h3>
     </div>
 
-    <div class="row">
-      <div v-for="rink, i in rinks" :key="i" class="col-6">
-        <div class="shadow p-2 mb-1 bg-body rounded"
-          data-bs-toggle="collapse" 
-          :data-bs-target="'#collapseTeam'+i+'rink'" 
-          aria-expanded="false" 
-          aria-controls="collapseOne">
-          <div class="col">{{rink.rink}}</div>
-        </div>
-        <div class="row p-2">
-          <div class="col collapse"
-            :id="'collapseTeam'+i+'rink'"
-            data-parent="#accordion">
-            <edit-rink :rinks="rink"/>
-          </div>
+    <div v-for="bigboard, i in bigboards" :key="i">
+      <div class="row shadow p-2 mb-1 bg-body rounded"
+        data-bs-toggle="collapse" 
+        :data-bs-target="'#collapseTeam'+i" 
+        aria-expanded="false" 
+        aria-controls="collapseOne">
+        <div class="col">{{bigboard.bigboard}} - Currently setup for {{bigboard.current_layout.layout}}</div>
+      </div>
+      <div class="row p-2">
+        <div class="col collapse"
+          :id="'collapseTeam'+i"
+          data-parent="#accordion">
+          <edit-bigboard :rinks="rinks" :layouts="layouts" :bigboard="bigboard"/>
         </div>
       </div>
     </div>
 
   </div>
-  </div>
 </template>
 
 <script>
 import { reactive, onMounted } from "vue";
-import EditRink from '../components/EditRink.vue'
-import EditMasterboard from '../components/EditMasterboard.vue'
+import EditBigboard from '../components/EditBigboard.vue'
 
 
 export default {
   name: 'CurrentRinks',
   components: {
-    EditRink,
-    EditMasterboard,
+    EditBigboard,
   },
   props: {
+    bigboards: Object,
     rinks: Object,
-    masterboards: Object,
+    layouts: Object,
   },
 
   setup() {

@@ -17,193 +17,6 @@ class Games:
         self.db_path = "co_ordinator.db"
         # self.init_database_tables()
 
-    def init_database_tables(self):
-        conn = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS game_types
-                     (game_type_id INTEGER PRIMARY KEY,
-                     players INTEGER"",
-                     game_type TEXT, "")''')
-        conn.commit()
-        c.execute('''INSERT into game_types (game_type_id, players, game_type)
-                    VALUES (1, 2, 'Singles'),
-                            (2, 4, 'Pairs'),
-                            (3, 6, 'Triples'),
-                            (4, 8, 'Fours') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS competitions
-                     (competition_id INTEGER PRIMARY KEY,
-                     competition TEXT, "")''')
-        conn.commit()
-        c.execute('''INSERT into competitions (competition_id, competition)
-                    VALUES (1, 'Bowls / Pennants'),
-                            (2, 'BPL'),
-                            (3, 'Consistency Singles')
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS genders
-                     (gender_id INTEGER PRIMARY KEY,
-                     gender text, "")''')
-        conn.commit()
-        c.execute('''INSERT into genders (gender_id, gender)
-                    VALUES (1, 'Mens'),
-                            (2, 'Ladies'),
-                            (3, 'Mixed'),
-                            (4, 'Open') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS rounds
-                     (round_id INTEGER PRIMARY KEY,
-                     round text, "")''')
-        conn.commit()
-        c.execute('''INSERT into rounds (round_id, round)
-                    VALUES (1, 64),
-                            (2, 32),
-                            (3, 16),
-                            (4, 'Quarter'),
-                            (5, 'Semi'),
-                            (6, 'Final') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS displays
-                     (display_id INTEGER PRIMARY KEY,
-                     display text, "")''')
-        conn.commit()
-        c.execute('''INSERT into displays (display_id, display)
-                    VALUES (1, 'Default'),
-                            (2, 'Logo'),
-                            (3, 'First Initial'),
-                            (4, 'Fist and Last Initial') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS grades
-                     (grade_id INTEGER PRIMARY KEY,
-                     grade text, "")''')
-        conn.commit()
-        c.execute('''INSERT into grades (grade_id, grade)
-                    VALUES (1, 'Premiere'),
-                            (2, '1'),
-                            (3, '2'),
-                            (4, '3'),
-                            (5, '4'),
-                            (6, '5'),
-                            (7, '6') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS sponsors
-                     (sponsor_id INTEGER PRIMARY KEY,
-                     sponsor TEXT NOT NULL DEFAULT "",
-                     sponsor_logo TEXT NOT NULL)''')
-        conn.commit()
-        c.execute('''INSERT into sponsors (sponsor_id, sponsor, sponsor_logo)
-                    VALUES (1, 'Bell Property', 'belle_whitebg.png'),
-                            (2, 'XXXX', 'xxxx.png') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS rinks
-                     (rink_id INTEGER PRIMARY KEY,
-                     rink text,
-                     ip text, "")''')
-        conn.commit()
-        c.execute('''INSERT into rinks (rink_id, rink, ip)
-                    VALUES (1, 'Rink 1', '192.168.15.201:8081'),
-                            (2, 'Rink 2', '192.168.15.202:8081'),
-                            (3, 'Rink 3', '192.168.15.203:8081'),
-                            (4, 'Rink 4', '192.168.15.204:8081'),
-                            (5, 'Rink 5', '192.168.15.205:8081'),
-                            (6, 'Rink 6', '192.168.15.206:8081'),
-                            (7, 'Rink 7', '192.168.15.207:8081'),
-                            (8, 'Rink 8', '192.168.15.208:8081'),
-                            (9, 'Rink 9', '192.168.15.209:8081'),
-                            (10, 'Rink 10', '192.168.15.210:8081'),
-                            (11, 'Rink 11', '192.168.15.211:8081'),
-                            (12, 'Rink 12', '192.168.15.212:8081'),
-                            (13, 'Rink 13', '192.168.15.213:8081'),
-                            (14, 'Rink 14', '192.168.15.214:8081') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS masterboards
-                     (masterboard_id INTEGER PRIMARY KEY,
-                     masterboard text,
-                     ip text, "")''')
-        conn.commit()
-        c.execute('''INSERT into masterboards (masterboard_id, masterboard, ip)
-                    VALUES (1, 'Masterboard 1', '192.168.15.215:8081'),
-                            (2, 'Masterboard 2', '192.168.15.216:8081'),
-                            (3, 'Masterboard 3', '192.168.15.217:8081'),
-                            (4, 'Masterboard 4', '192.168.15.218:8081') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS master_link
-                     (master_link_id INTEGER PRIMARY KEY,
-                     masterboard INTEGER DEFAULT NULL,
-                     rink INTEGER DEFAULT NULL,
-                     FOREIGN KEY (masterboard)
-                        REFERENCES masterboards (masterboard_id),
-                    FOREIGN KEY (rink)
-                        REFERENCES rinks (rink_id))''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS games
-                     (game_id INTEGER PRIMARY KEY,
-                     name text DEFAULT NULL,
-                     game_type INTEGER DEFAULT NULL,
-                     gender INTEGER DEFAULT NULL,
-                     competition INTEGER DEFAULT NULL,
-                     round INTEGER DEFAULT NULL,
-                     grade INTEGER DEFAULT NULL,
-                     rink INTEGER DEFAULT NULL,
-                     sponsor INTEGER DEFAULT NULL,
-                     start_time text,
-                     finish_time text,
-                     ends INTEGER DEFAULT 0,
-                     winner INTEGER DEFAULT NULL,
-                     FOREIGN KEY (game_type)
-                        REFERENCES game_type (game_type_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT,
-                     FOREIGN KEY (gender)
-                        REFERENCES genders (gender_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT,
-                     FOREIGN KEY (competition)
-                        REFERENCES competitions (competition_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT,
-                     FOREIGN KEY (round)
-                        REFERENCES rounds (round_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT,
-                    FOREIGN KEY (grade)
-                        REFERENCES grades (grade_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT,
-                    FOREIGN KEY (rink)
-                        REFERENCES rinks (rink_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT,
-                    FOREIGN KEY (sponsor)
-                        REFERENCES sponsors (sponsor_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT,
-                    FOREIGN KEY (winner)
-                        REFERENCES competitors (team)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT)''')
-        conn.commit()
-
     def get_game_types(self):
         con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
         con.row_factory = sqlite3.Row
@@ -319,39 +132,65 @@ class Games:
 
         return parsed_rows
 
-    def get_masterboards(self):
+
+    def get_layouts(self):
         con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
         con.row_factory = sqlite3.Row
         cursor = con.cursor()
 
         parsed_rows = []
-        masterboards = cursor.execute("SELECT * FROM masterboards").fetchall()
+        layouts = cursor.execute("SELECT * FROM layouts").fetchall()
 
-        for masterboard in masterboards:
-            sql = f'''SELECT r.rink, r.ip, r.rink_id from master_link ml
-                    inner join masterboards m 
-                    on ml.masterboard = m.masterboard_id
-                    inner join rinks r 
-                    on ml.rink = r.rink_id
-                    where m.masterboard_id = ?'''
-            params = [masterboard['masterboard_id']]
-            rink_ips = cursor.execute(sql, params).fetchall()
-            rinks = []
-            for rink_ip in rink_ips:
-                rinks.append({
-                    "rink": rink_ip[0],
-                    "ip": rink_ip[1],
-                    "rink_id": rink_ip[2],
-
-                 })
-
+        for layout in layouts:
             parsed_rows.append({
-                "masterboard": masterboard["masterboard"],
-                "ip": masterboard["ip"],
-                "masterboard_id": masterboard["masterboard_id"],
-                "rink_ips": rinks,
+                "layout_id": layout["layout_id"],
+                "layout": layout["layout"],
             })
+
         return parsed_rows
+
+    def get_bigboards(self):
+        con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
+        con.row_factory = sqlite3.Row
+        cursor = con.cursor()
+
+        bigboards = cursor.execute("""SELECT * FROM bigboards b
+            INNER JOIN layouts ON b.current_layout  = layouts.layout_id """).fetchall()
+        boards = []
+
+        for bigboard in bigboards:
+            boards.append({
+                "bigboard": bigboard["bigboard"],
+                "ip": bigboard["ip"],
+                "bigboard_id": bigboard["bigboard_id"],
+                "current_layout": {
+                    "layout_id": bigboard["current_layout"],
+                    "layout": bigboard["layout"]
+                }
+            })
+        #     sql = f'''SELECT r.rink, r.ip, r.rink_id from master_link ml
+        #             inner join bigboards b 
+        #             on ml.bigboard = b.masterboard_id
+        #             inner join rinks r 
+        #             on ml.rink = r.rink_id
+        #             where b.masterboard_id = ?'''
+        #     params = [bigboard['masterboard_id']]
+        #     rink_ips = cursor.execute(sql, params).fetchall()
+        #     rinks = []
+        #     for rink_ip in rink_ips:
+        #         rinks.append({
+        #             "rink": rink_ip[0],
+        #             "ip": rink_ip[1],
+        #             "rink_id": rink_ip[2],
+
+        #          })
+
+        #     parsed_rows.append({
+        #         "bigboard": bigboard["bigboard"],
+        #         "ip": bigboard["ip"],
+        #         "masterboard_id": bigboard["bigboard_id"],
+        #     })
+        return boards
 
 
     def get_sponsors(self, dump):
@@ -385,15 +224,11 @@ class Games:
 
         parsed_rows = []
         if get_current:
-            sql = '''SELECT *, r.rink as rink_name, s.sponsor as sponsor_name, c.competition as comp_name FROM games g
+            sql = '''SELECT *, r.rink as rink_name, c.competition as comp_name FROM games g
                     inner join rinks r
                     on g.rink = r.rink_id
-                    inner join sponsors s
-                    on g.sponsor = s.sponsor_id
                     inner join competitions c
                     on g.competition = c.competition_id
-                    inner join sponsors
-                    on g.sponsor = sponsors.sponsor_id
                     WHERE finish_time IS NULL'''
         else:
             return json.dumps({})
@@ -401,7 +236,7 @@ class Games:
                     inner join rinks r
                     on g.rink = r.rink_id
                     WHERE finish_time IS NOT NULL'''
-    
+
         games = cursor.execute(sql).fetchall()
 
         for game in games:
@@ -446,7 +281,6 @@ class Games:
                 "round": game["round"],
                 "grade": game["grade"],
                 "rink": {"rink":game["rink_name"], "rink_id":game["rink_id"], "ip":game["ip"]},
-                "sponsor": {"sponsor":game["sponsor_name"], "sponsor_id":game["sponsor_id"], "sponsor_logo":game["sponsor_logo"]},
                 "ends": game["ends"],
                 "start_time": game["start_time"],
                 "finish_time": game["finish_time"],
@@ -504,13 +338,23 @@ class Games:
 
         utc = datetime.datetime.utcnow().replace(tzinfo=pytz.timezone('UTC'))
 
-        sql = "INSERT INTO games (competition, rink, sponsor, start_time) VALUES(?, ?, ?, ?);"
+        sql = "INSERT INTO games (competition, rink, start_time) VALUES(?, ?, ?);"
 
         not_filled = False
 
+        ignore_list = ['game_id',
+            'name',
+            'ends',
+            'start_time',
+            'finish_time',
+            'coordinator_ip',
+            'winner',
+        ]
+
         for i in js:
-            if i == 'game_id' or i == 'name' or i == 'ends' or i == 'finish_time':
+            if i in ignore_list:
                 continue
+
             if js[i]:
                 for j in js[i]:
                     if type(js[i][j]) == dict:
@@ -530,7 +374,7 @@ class Games:
             return js
 
         try:
-            params = [js["competition"]["competition_id"], js["rink"]["rink_id"], js["sponsor"]["sponsor_id"], utc]
+            params = [js["competition"]["competition_id"], js["rink"]["rink_id"], utc]
             cursor.execute(sql, params)
 
             game_id = cursor.lastrowid
@@ -594,16 +438,6 @@ class Games:
         except Exception as e:
             print("FAIL", e)
             return "fail"
-
-
-
-    def get_masterboard(self, masterboard_id):
-        con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
-        con.row_factory = sqlite3.Row
-        cursor = con.cursor()
-        masterboard = cursor.execute("SELECT * FROM masterboards WHERE masterboard_id = ?", (masterboard_id, )).fetchone()
-        
-        return masterboard
 
 
     def create_rink(self, js):
@@ -705,8 +539,8 @@ class Games:
         con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
         cursor = con.cursor()
 
-        cmd = "UPDATE games SET name = ?,game_type = ?,competition = ?,gender = ?,round = ?,grade = ?,rink = ?,sponsor = ?,ends = ?,start_time = ?,finish_time = ?,winner = ? WHERE game_id = ?"
-        params = (js['name'],js['game_type'], js["competition"]["competition_id"], js['gender'], js['round'], js['grade'], js["rink"]["rink_id"], js["sponsor"]["sponsor_id"],js['ends'], js['start_time'], js['finish_time'], js['winner'], js['game_id'] )
+        cmd = "UPDATE games SET name = ?,game_type = ?,competition = ?,gender = ?,round = ?,grade = ?,rink = ?,ends = ?,start_time = ?,finish_time = ?,winner = ? WHERE game_id = ?"
+        params = (js['name'],js['game_type'], js["competition"]["competition_id"], js['gender'], js['round'], js['grade'], js["rink"]["rink_id"], js['ends'], js['start_time'], js['finish_time'], js['winner'], js['game_id'] )
 
         res = cursor.execute(cmd, params)
 
@@ -762,54 +596,41 @@ class Games:
         }
 
 
-    def update_masterboards(self, js):
+    def update_bigboards(self, js):
         con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
         con.row_factory = sqlite3.Row
         cursor = con.cursor()
 
-        cmd = "UPDATE masterboards SET ip = ?, masterboard = ? WHERE masterboard_id = ?"
-        params = [js['ip'], js['masterboard'], js['masterboard_id']]
+        cmd = "UPDATE bigboards SET bigboard = ?, ip = ?, current_layout = ? WHERE bigboard_id = ?"
+        params = [js['bigboard'], js['ip'], js['current_layout']['layout_id'], js['bigboard_id']]
         res = cursor.execute(cmd, params)
         if res.fetchone() is None:
             con.commit()
-        return {
-                "status": "ok",
-        }
-
-
-    def update_master_link(self, js, master_id):
-        con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
-        con.row_factory = sqlite3.Row
-        cursor = con.cursor()
-
-        cmd = "DELETE from master_link WHERE masterboard = ?"
-        params = [master_id]
-        res = cursor.execute(cmd, params)
-
-        for rink in js:
-            if rink['show'] is True:
-                cmd = "INSERT INTO master_link (masterboard,  rink) values (?, ?)"
-                params = [master_id, rink['rink_id']]
-                res = cursor.execute(cmd, params)
-        if res.fetchone() is None:
-            con.commit()
-            x = threading.Thread(target=self.write_masterboard, args=(js, master_id,))
+            x = threading.Thread(target=self.write_bigboard, args=(js,))
             x.start()
         return {
                 "status": "ok",
         }
 
-    def write_masterboard(self, js, master_id):
-        ips = []
-        for rink in js:
-            if rink['show']:
-                tpl = (rink['ip'], rink['rink_id'])
-                ips.append(tpl)
 
-        masterboard_ip = self.get_masterboard(master_id)
-        print("URL: ", 'http://'+masterboard_ip['ip']+'/setup')
+    def write_bigboard(self, js):
+        con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
+        con.row_factory = sqlite3.Row
+        cursor = con.cursor()
+
+        cmd = """SELECT rinks.rink_id, layouts.layout, rinks.ip from bigboard_layout_link bll
+                INNER JOIN rinks ON bll.rink = rinks.rink_id
+                INNER JOIN layouts ON bll.layout = layouts.layout_id
+                WHERE bll.layout = ?"""
+        params = [js['current_layout']['layout_id']]
+        res = cursor.execute(cmd, params)
+
+        ips = []
+        for rink in res:
+            ips.append((rink['rink_id'], rink['layout'], rink['ip']))
+
         try:
-            response = requests.post('http://'+masterboard_ip['ip']+'/setup', json = ips)
+            response = requests.post('http://'+js['ip']+'/setup', json = ips)
             return response.status_code
         except:
             return "fail"

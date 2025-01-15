@@ -19,75 +19,7 @@ local_tz = pytz.timezone("Australia/Sydney")
 
 class Game:
     def __init__(self):
-        print()
-
         self.db_path = "scoreboard.db"
-        self.init_database_tables()
-
-    def init_database_tables(self):
-        conn = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS displays
-                     (display_id INTEGER PRIMARY KEY,
-                     display text, "")''')
-        conn.commit()
-        c.execute('''INSERT into displays (display_id, display)
-                    VALUES (1, 'Default'),
-                            (2, 'Logo'),
-                            (3, 'First Initial'),
-                            (4, 'Fist and Last Initial') 
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS competitions
-                     (competition_id INTEGER PRIMARY KEY,
-                     competition TEXT, "")''')
-        conn.commit()
-        c.execute('''INSERT into competitions (competition_id, competition)
-                    VALUES (1, 'Bowls / Pennants'),
-                            (2, 'BPL'),
-                            (3, 'Consistency Singles')
-                            ON CONFLICT DO NOTHING;''')
-        conn.commit()
-
-        c.execute('''CREATE TABLE IF NOT EXISTS games
-                     (game_id INTEGER PRIMARY KEY,
-                     name text DEFAULT NULL,
-                     competition INTEGER DEFAULT NULL,
-                     sponsor TEXT NOT NULL DEFAULT "",
-                     start_time text DEFAULT NULL, 
-                     finish_time text DEFAULT NULL, 
-                     ends int DEFAULT 0,
-                     winner text DEFAULT "",
-                     coordinator_ip text DEFAULT "127.0.0.1:8000",
-                     FOREIGN KEY (competition)
-                        REFERENCES competitions (competition_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT)''')
-
-        c.execute('''CREATE TABLE IF NOT EXISTS competitors
-                     (competitor_id INTEGER NOT NULL PRIMARY KEY,
-                     player_id INTEGER DEFAULT "No Player",
-                     first_name text DEFAULT "",
-                     last_name text DEFAULT "",
-                     score text DEFAULT 0,
-                     sets text DEFAULT 0,
-                     logo text DEFAULT "",
-                     display INTEGER NOT NULL DEFAULT 1,
-                     game INTEGER NOT NULL DEFAULT "No Game",
-                     FOREIGN KEY (display)
-                        REFERENCES displays (display_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT,
-                     FOREIGN KEY (game)
-                        REFERENCES games (game_id)
-                            ON UPDATE CASCADE
-                            ON DELETE SET DEFAULT)''')
-
-        conn.commit()
-
 
     def encode_if_required(self, str_val):
         try:
@@ -126,68 +58,65 @@ class Game:
         con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
         con.row_factory = sqlite3.Row
         cursor = con.cursor()
-        parsed_rows = []
-        
-        games = cursor.execute('''SELECT *, c.competition as comp FROM games g
+
+        GAME = config.DEFAULT_GAME
+
+        games = cursor.execute('''SELECT game_id,
+                                name,
+                                ends,
+                                winner,
+                                coordinator_ip,
+                                c.competition as competition
+                                FROM games g
                                 INNER JOIN competitions c
                                 ON g.competition = c.competition_id
                                 WHERE finish_time is NULL''').fetchall()
 
+        column_names = list(map(lambda x: x[0], cursor.description))
+
         if not games:
-            self.create_game(config.DEFAULT_GAME, config.COORDINATOR_IP)
-        else:
-            for game in games:
-                if game['ends'] < 0:
-                    self.create_game(config.DEFAULT_GAME, config.COORDINATOR_IP)
+            self.create_game(GAME)
 
-                sql = """SELECT competitor_id, player_id, first_name, last_name, score, sets, logo, d.display FROM competitors as c
-                        INNER JOIN displays AS d
-                        ON c.display = d.display_id
-                        where game = ?"""
-                params = (game['game_id'],)
-                players = cursor.execute(sql, params).fetchall()
-                competitors = []
-                tie_break = []
-                for player in players:
-                    # BPL RULES
-                    if game['comp'] == 'BPL':
-                        if float(player['sets']) > 2:
-                            reset = self.reset_sets()
-                        if player['sets'] == '1':
-                            tie_break.append(1)
+        for game in games:
+            if game['ends'] < 0:
+                self.create_game(GAME)
 
-                    competitors.append({
-                        "competitor_id": player['competitor_id'],
-                        "player_id": player['player_id'],
-                        "first_name": player['first_name'],
-                        "last_name": player['last_name'],
-                        "score": player['score'],
-                        "sets": player['sets'],
-                        "logo": player['logo'],
-                        "competitor_display": player['display'],
-                     })
-                # check if both players have sets == 1
-                if len(tie_break) == 2:
-                    tie = True
-                else:
-                    tie = False
+            sql = """SELECT competitor_id, player_id, first_name, last_name, score, sets, logo, d.display FROM competitors as c
+                    INNER JOIN displays AS d
+                    ON c.display = d.display_id
+                    where game = ?"""
+            params = (game['game_id'],)
+            players = cursor.execute(sql, params).fetchall()
+            competitors = []
+            tie_break = []
 
-                parsed_rows.append({
-                    "game_id": game["game_id"],
-                    "name": game["name"],
-                    "sponsor": game["sponsor"],
-                    "competition": game["comp"],
-                    "start_time": game["start_time"],
-                    "finish_time": game["finish_time"],
-                    "ends": game["ends"],
-                    "tie_break": tie,
-                    "winner": game["winner"],
-                    "coordinator": game["coordinator_ip"],
-                    "coordinator_running": self.coordinator_running(),
-                    "competitors": competitors,
-                })
+            player_column_names = list(map(lambda x: x[0], cursor.description))
 
-        return json.dumps(parsed_rows)
+            for column in column_names:
+                GAME[column] = game[column]
+            GAME['coordinator_running'] = self.coordinator_running()
+
+
+            for player in players:
+                # BPL RULES
+                if game['competition'] == 'BPL':
+                    if float(player['sets']) > 2:
+                        reset = self.reset_sets()
+                    if player['sets'] == '1':
+                        tie_break.append(1)
+
+                for column in player_column_names:
+                    GAME['competitors'][str(player['competitor_id'])][column] = player[column]
+
+            # check if both players have sets == 1
+            if len(tie_break) == 2:
+                tie = True
+            else:
+                tie = False
+
+            GAME["tie_break"]= tie
+
+            return json.dumps(GAME)
 
     def delete_all_games(self):
         try:
@@ -204,7 +133,7 @@ class Game:
             return "no data"
 
 
-    def create_game(self, js, coordinator_ip):
+    def create_game(self, js):
         self.delete_all_games()
 
         con = sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES)
@@ -213,11 +142,14 @@ class Game:
 
         utc = datetime.datetime.utcnow().replace(tzinfo=pytz.timezone('UTC'))
 
-        coordinator_ip += ':8000'
         js['finish_time'] = None
 
-        sql = "INSERT INTO games (game_id, competition, sponsor, start_time, finish_time, coordinator_ip) VALUES(?,?,?,?,?,?);"
-        params = (js['game_id'], js["competition"]["competition_id"], js["sponsor"]["sponsor_logo"], utc, js['finish_time'], coordinator_ip)
+        print("JS: ", js)
+
+        sql = "INSERT INTO games (game_id, competition, start_time, finish_time, coordinator_ip) VALUES(?,?,?,?,?);"
+        params = (js['game_id'], js["competition"]["competition_id"], utc, js['finish_time'], js['coordinator_ip'])
+        print(sql)
+        print(params)
         game_id = cursor.execute(sql, params)
 
         for player in js['competitors']:
@@ -251,8 +183,8 @@ class Game:
             con.commit()
 
         else:
-            sql = "INSERT INTO games (game_id, name, competition, start_time, finish_time, coordinator_ip, sponsor) VALUES(?,?,?,?,?,?,?);"
-            params = (js['game_id'], js['name'], js["competition"]["competition_id"], utc, js['finish_time'], coordinator_ip, js["sponsor"]["sponsor_logo"])
+            sql = "INSERT INTO games (game_id, name, competition, start_time, finish_time, coordinator_ip, ends) VALUES(?,?,?,?,?,?,?);"
+            params = (js['game_id'], js['name'], js["competition"]["competition_id"], utc, js['finish_time'], coordinator_ip, js['ends'])
             game_id = cursor.execute(sql, params)
 
             for player in js['competitors']:

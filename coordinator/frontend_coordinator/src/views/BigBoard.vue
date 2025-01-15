@@ -3,29 +3,14 @@
     <div class="row">
 
       <div class="col">
-        <div class="bg-secondary p-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">New Rink</div>
+        <div class="bg-secondary p-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">New Big Board</div>
 
       <div class="offcanvas offcanvas-end w-50" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header">
-          <h5 id="offcanvasRightLabel">New Rink</h5>
+          <h5 id="offcanvasRightLabel">New Big Board</h5>
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-          
-          <div class="row p-1">
-            <div class="col-4">Rink Name</div>
-            <input class="col" v-model="createRink.rink" type="text">
-          </div>
-          <div class="row p-1">
-            <div class="col-4">IP Address</div>
-            <input class="col" v-model="createRink.ip" type="text">
-          </div>
-
-          <div class="">
-            <button @click="createRinkButton(this.createRink)" class="btn btn-success">Create Rink</button>
-          </div>
-
-          <br>
 
           <div class="row p-1">
             <div class="col-4">Big Board Name</div>
@@ -42,12 +27,12 @@
         </div>
       </div>
 
-        <div class="row">
-          <div v-if="state.rinks" class="col-12">
-            <current-rinks :rinks="state.rinks" :masterboards="state.masterboards"/>
-          </div>
+      <div class="row">
+        <div v-if="state.bigboards" class="col-12">
+          <current-big-boards :rinks="state.rinks" :layouts="state.layouts" :bigboards="state.bigboards"/>
         </div>
-  
+      </div>
+
       </div>
     </div>
     
@@ -56,14 +41,14 @@
 
 <script>
 import { reactive, onMounted } from "vue";
-import CurrentRinks from '../components/CurrentRinks.vue'
+import CurrentBigBoards from '../components/CurrentBigBoards.vue'
 import axios from 'axios'
 import { DateTime } from "luxon";
 
 export default {
   name: 'PlayersView',
   components: {
-    CurrentRinks,
+    CurrentBigBoards,
   },
   data() {
     return {
@@ -80,30 +65,19 @@ export default {
   setup() {
     const state = reactive({
       rinks: null,
-      masterboards: null,
+      bigboards: null,
     });
 
     var path = ""
     path = 'http://127.0.0.1:8000/'
     
     onMounted(async () => { 
+      getBigboards()
       getRinks()
-      getMasterboards()
+      getLayouts()
     });
-    function createRinkButton(rink) {
-      axios.post(path+'games/create_rink', {
-      create_rink: rink,
-      })
-      .then(function (response) {
-        console.log(response);
-        getRinks()
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    }
     function createMasterboardButton(masterboard) {
-      axios.post(path+'games/create_masterboard', {
+      axios.post(path+'games/create_bigboard', {
       create_masterboard: masterboard,
       })
       .then(function (response) {
@@ -112,6 +86,22 @@ export default {
       })
       .catch(function (error) {
         console.log(error);
+      });
+    }
+    function getBigboards() {
+      axios.get(path+'games/get_bigboards')
+      .then(function (response) {
+        if (response.status == 200){
+          console.log("RESPONSE ", response.data);
+          state.bigboards = response.data
+        }
+      })
+      .catch(function (error) {
+        // handle error
+        console.log("ERROR ", error);
+      })
+      .then(function () {
+        // always executed
       });
     }
     function getRinks() {
@@ -130,12 +120,12 @@ export default {
         // always executed
       });
     }
-    function getMasterboards() {
-      axios.get(path+'games/get_masterboards')
+    function getLayouts() {
+      axios.get(path+'games/get_layouts')
       .then(function (response) {
         if (response.status == 200){
           console.log("RESPONSE ", response.data);
-          state.masterboards = response.data
+          state.layouts = response.data
         }
       })
       .catch(function (error) {
@@ -150,8 +140,6 @@ export default {
     return {
       path,
       state,
-      getRinks,
-      createRinkButton,
       createMasterboardButton,
     };
   },

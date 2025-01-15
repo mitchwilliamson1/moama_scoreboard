@@ -41,7 +41,7 @@ def get_logo(logo):
 
 
 @bott.route("/setup", method=["POST", "OPTIONS"])
-def create_game():
+def setup():
     if request.method == "OPTIONS":
         return
     request_params = json.loads(request.body.getvalue())

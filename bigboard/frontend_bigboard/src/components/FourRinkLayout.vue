@@ -1,7 +1,16 @@
 <template>
-  <div v-if="state.game" class="h-100 w-100">
-    <BPL v-if="state.game.competition == 'BPL'" class="h-100" :detail="state.game"/>
-    <Scoreboard v-else class="h-100" :detail="state.game"/>
+  <div v-if="scoreboards" class="h-100 w-100" style="background-color: black;">
+    <div class="container p-0 h-100 w-100">
+      <div class="row m-0 p-0 h-50">
+        <div v-for="board, rink in scoreboards" class="col-3 border border-light m-0 p-0 h-100">
+          <BPL v-if="board.competition == 'BPL'" class="row m-0 p-0" :rink="rink" :detail="board"/>
+          <Scoreboard v-else class="row m-0 p-0" :rink="rink" :detail="board"/>
+        </div>
+      </div>
+      <div class="row m-0 p-0 h-50">
+        <Masterboard class="row m-0 p-0 h-100" :masterboard="masterboard"/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -9,48 +18,54 @@
 import { reactive, onMounted } from "vue";
 import axios from 'axios'
 import Scoreboard from './Scoreboard.vue'
+import Masterboard from './Masterboard.vue'
 import BPL from './BPL.vue'
- 
 
 export default {
   name: 'Backboard',
+  props: {
+    scoreboards: Object,
+    masterboard: Object,
+  },
   components: {
     Scoreboard,
+    Masterboard,
     BPL,
   },
+
   data(){
     return{
       path: "",
+      blah:[1,2,3,4,5,6]
     }
   },
   setup() {
     const state = reactive({
-      game: null,
+      data: null,
     });
 
     var path = ""
     if (process.env.NODE_ENV == 'development'){
-      path = 'http://127.0.0.1:8081/'
+      path = 'http://127.0.0.1:8083/'
     }else{
       path = window.location.toString();
     }
 
     onMounted(async () => {
-      getGame()
     })
 
-    function getGame() {
-      axios.get(path+'get_game')
+    function getScoreboards() {
+      axios.get(path+'get_scoreboards')
       .then(function (response) {
         if (response.status == 200){
-          state.game = response.data
+          state.data = response.data
         }
       })
       .catch(function (error) {
         console.log("ERROR ", error);
       })
       .then(function () {
-        setTimeout(getGame, 1000)
+        setTimeout(getScoreboards, 1000)
       });
     }
 
@@ -83,23 +98,16 @@ export default {
         }
       }
     },
-    post() {
-      (async () => {
-      const rawResponse = await fetch(this.path+'/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors',
-        body: JSON.stringify(this.state)
-      })
-      const content = await rawResponse.json();
-      console.log(content);
-      })();
-    },
   },
 }
 </script>
 <style scoped type="text/css">
-
+.container {
+  max-width: 100%;
+  /*margin: 0%;*/
+}
+.row {
+  max-width: 100%;
+  /*margin: 0%;*/
+}
 </style>

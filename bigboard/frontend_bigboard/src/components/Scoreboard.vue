@@ -1,75 +1,45 @@
 <template>
-  <div v-if="this.details" class="container-fluid h-100 w-100 p-0" style="background-color: black;">
+  <div v-if="detail" class="container-fluid h-100 w-100 p-0" style="background-color: black;">
     <div class="container-fluid w-100 h-100 d-flex flex-column">
+      <h1 class="row justify-content-center text-info p-0 m-0" style="height: 10%; font-size: 5vh; font-weight: bold">{{rink}}</h1>
 
-      <div class="row align-items-center" style="height: 33%;">
-
-        <div class="col p-0 h-75">
-            <img class="logo" :src="'http://127.0.0.1:8081/moama_steamers.png'">
-
-<!--           <template v-if="coordinator_running" >
-            <img v-if="p1.competitor_display == 'Logo'" class="logo"  :src="'http://'+coordinator+'/players/get_logo/'+p1Logo">
-            <div v-else-if="p1.competitor_display == 'First Initial'" class="txt">{{p1.first_name.charAt(0)}}</div>
-            <div v-else-if="p1.competitor_display == 'Fist and Last Initial'" class="txt">{{p1.first_name.charAt(0)}}{{p1.last_name.charAt(0)}}</div>
-            <img v-else="p1.competitor_display == 'Default'" class="logo" :src="'http://127.0.0.1:8081/moama_steamers.png'"> 
+      <div class="row align-items-center" style="height: 28%;">
+        <div v-for="competitor in detail.competitors" class="col-6 p-0 h-75">
+          <template v-if="detail.coordinator_running" >
+            <img v-if="competitor.display == 'Logo'"
+              class="logo"
+              :src="'http://'+detail.coordinator_ip+'/players/get_logo/'+competitor.logo">
+            <div v-else-if="competitor.display == 'First Initial'"
+              class="txt">{{competitor.first_name.charAt(0)}}</div>
+            <div v-else-if="competitor.display == 'Fist and Last Initial'"
+              class="txt">{{competitor.first_name.charAt(0)}}{{competitor.last_name.charAt(0)}}</div>
+            <img v-else="competitor.display == 'Default'" class="logo"
+              :src="'http://127.0.0.1:8081/'+competitor.default_logo">
           </template>
           <template v-else>
-            <div v-if="p1.competitor_display == 'first name'" class="txt">{{p1.first_name.charAt(0)}}</div>
-            <div v-else-if="p1.competitor_display == 'Fist and Last Initial'" class="txt">{{p1.first_name.charAt(0)}}{{p1.last_name.charAt(0)}}</div>
-            <img v-else="p1.competitor_display == 'Default'" class="logo" :src="'http://127.0.0.1:8081/moama_steamers.png'">
-          </template> -->
-
-        </div>
-
-        <div class="col p-0 h-75">
-            <img class="logo" :src="'http://127.0.0.1:8081/away.jpeg'">
-
-<!--           <template v-if="coordinator_running">
-            <img v-if="p2.competitor_display == 'Logo'" class="logo"  :src="'http://'+coordinator+'/players/get_logo/'+p2Logo">
-            <div v-else-if="p2.competitor_display == 'First Initial'" class="txt">{{p2.first_name.charAt(0)}}</div>
-            <div v-else-if="p2.competitor_display == 'Fist and Last Initial'" class="txt">{{p2.first_name.charAt(0)}}{{p2.last_name.charAt(0)}}</div>
-            <img v-else="p2.competitor_display == 'Default'"  class="logo" :src="'http://127.0.0.1:8081/away.jpeg'">
+            <div v-if="competitor.display == 'first name'"
+              class="txt">{{competitor.first_name.charAt(0)}}</div>
+            <div v-else-if="competitor.display == 'Fist and Last Initial'" 
+              class="txt">{{competitor.first_name.charAt(0)}}{{competitor.last_name.charAt(0)}}</div>
+            <img v-else="competitor.display == 'Default'" 
+              class="logo" :src="'http://127.0.0.1:8081/'+competitor.default_logo">
           </template>
-          <template v-else>
-            <div v-if="p2.competitor_display == 'First Initial'" class="txt">{{p2.first_name.charAt(0)}}</div>
-            <div v-else-if="p2.competitor_display == 'Fist and Last Initial'" class="txt">{{p2.first_name.charAt(0)}}{{p2.last_name.charAt(0)}}</div>
-            <img v-else="p2.competitor_display == 'Default'" class="logo" :src="'http://127.0.0.1:8081/away.jpeg'">
-          </template> -->
-
         </div>
-
       </div>
 
       <div class="row align-items-center" style="min-height: 33%; padding-bottom: 30px;">
-        <div class="col p-0 align-self-center">
-          <Ticker :player="details.competitors[1]" 
-                    :details="details"
-                    fontSize="10" 
-                    colour="red"/>
-        </div>
-        <div class="col p-0">
-          <Ticker :player="details.competitors[2]" 
-                    :details="details"
-                    fontSize="10" 
-                    colour="black"/>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="h-100 align-self-center row">
-          <div :style="getBackgroundImage" class="add">
-          </div>
+        <div v-for="competitor in detail.competitors" class="col p-0 align-self-center">
+          <Ticker :number="competitor.score.toString()" 
+                    fontSize="12"
+                    fontColour="yellow"/>
         </div>
       </div>
 
       <div class="row align-items-center overflow-hidden" style="height: 33%;">
         <div class="col">
-          <Ticker :details="details"
-                  :endsProp="ends"
-                  player="ends" 
-                  fontSize="6" 
-                  fontColour="white" 
-                  colour="black"/>
+          <Ticker :number="detail.ends.toString()"
+                  fontSize="12"
+                  fontColour="white"/>
         </div>
       </div>
 
@@ -88,6 +58,7 @@ export default {
   name: 'Board',
   props: {
     detail: Object,
+    rink: String,
   },
   components: {
     Ticker,
@@ -103,36 +74,6 @@ export default {
     // },
   },
   computed: {
-    getBackgroundImage() {
-      return 'background-image:url(http://'+this.coordinator+'/players/get_logo/'+this.detail.sponsor+');'
-    },
-    p1() {
-      return this.detail.competitors[0]
-    },
-    p2() {
-      return this.detail.competitors[1]
-    },
-    details() {
-      return this.detail
-    },
-    coordinator_running() {
-      return this.detail.coordinator_running
-    },
-    coordinator() {
-      return this.detail.coordinator
-    },
-    p1Logo() {
-      return this.detail.competitors[0].logo
-    },
-    logo() {
-      return this.coordinator+'/players/get_logo/'+this.p1Logo
-    },
-    p2Logo() {
-      return this.detail.competitors[1].logo
-    },
-    ends() {
-      return this.detail.ends
-    }
   },
   methods: {
     isMobile() {

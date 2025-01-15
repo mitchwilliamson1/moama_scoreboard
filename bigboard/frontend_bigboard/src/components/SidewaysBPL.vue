@@ -1,9 +1,10 @@
 <template>
-  <div v-if="detail" class="container-fluid h-100 w-100 p-0" style="background-color: black;">
+  <div v-if="this.detail" class="container-fluid h-100 w-100 p-0" style="background-color: black;">
     <div class="container-fluid w-100 h-100 d-flex flex-column">
+      <h1 class="row justify-content-center text-info p-0 m-0" style="height: 11%;">{{rink}}</h1>
 
-      <div class="row align-items-center" style="height: 33%;">
-        <div v-for="competitor in detail.competitors" class="col-6 p-0 h-75">
+      <div class="row m-0 p-0 align-items-center" style="height: 28%;">
+        <div v-for="competitor in detail.competitors" class="col-6 p-0 m-0" style="height:85%">
           <template v-if="detail.coordinator_running" >
             <img v-if="competitor.display == 'Logo'"
               class="logo"
@@ -26,31 +27,31 @@
         </div>
       </div>
 
-      <div class="row align-items-center" style="min-height: 23%;">
+      <div class="row m-0 p-0 align-items-center" style="min-height: 21%;">
         <div v-for="competitor in detail.competitors" class="col p-0 align-self-center">
           <Ticker :number="competitor.score.toString()" 
-                    fontSize="27"
+                    fontSize="7"
                     fontColour="yellow"/>
         </div>
       </div>
 
-      <div class="row align-items-center" style="min-height: 23%;">
+      <div class="row m-0 p-0 align-items-center" style="min-height: 20%;">
         <div v-for="competitor in detail.competitors" class="col p-0 align-self-center">
           <Ticker :number="competitor.sets.toString()" 
-                    fontSize="20"
+                    fontSize="7"
                     fontColour="DeepSkyBlue"/>
         </div>
       </div>
 
-      <div class="row align-items-center overflow-hidden" style="min-height: 18%;">
+      <div class="row m-0 p-0 align-items-center overflow-hidden" style="min-height: 19%;">
         <div v-if="!detail.tie_break" class="col">
           <Ticker :number="detail.ends.toString()"
-                  fontSize="20" 
+                  fontSize="6" 
                   fontColour="white"/>
         </div>
         <div v-else class="col">
           <Ticker number="TB"
-                  fontSize="20" 
+                  fontSize="6" 
                   fontColour="white"/>
         </div>
       </div>
@@ -69,6 +70,7 @@ export default {
   name: 'Board',
   props: {
     detail: Object,
+    rink: String,
   },
   components: {
     Ticker,
@@ -84,7 +86,6 @@ export default {
     // },
   },
   computed: {
-
   },
   methods: {
     isMobile() {
@@ -115,7 +116,7 @@ export default {
 .txt {
   font-family: bigText;
   color: white;
-  font-size: 20vh;
+  font-size: 9.5vh;
   text-align: center;
   line-height: 1.0;
 }

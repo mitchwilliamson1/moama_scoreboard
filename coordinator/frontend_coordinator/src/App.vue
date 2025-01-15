@@ -13,10 +13,10 @@
             <router-link class="link" to="/clubs">Clubs</router-link>
           </div>
           <div class="row p-3">
-            <router-link class="link" to="/sponsors">Sponsors</router-link>
+            <router-link class="link" to="/rinks">Rinks</router-link>
           </div>
           <div class="row p-3">
-            <router-link class="link" to="/rinkmanager">Manage Rinks </router-link>
+            <router-link class="link" to="/bigboard">Big Board</router-link>
           </div>
           <div class="row p-3">
             <router-link class="link" to="/support">Support </router-link>

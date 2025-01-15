@@ -1,11 +1,7 @@
 <template>
   <div>
-    <!-- <div class="bg-light"> {{player}}</div> -->
     <div class="count text-align-center h-100" :style="addstyle"> 
-      <div v-if="typeof ends !== 'undefined'">{{ends}}</div>
-      <div v-if="typeof score !== 'undefined'">{{score}}</div>
-      <div v-if="typeof sets !== 'undefined'">{{sets}}</div>
-      <!-- <div v-if="typeof sets !== 'undefined'">1&#189;</div> -->
+      {{number}}
     </div>
     <div class="text-align-center">
       <button v-if="isMobile() && (typeof ends !== 'undefined')" @click="endsUp(ends)">Increase</button>
@@ -23,11 +19,7 @@ import axios from 'axios'
 export default {
   name: 'Ticker',
   props: {
-    player: Object,
-    details: Object,
-    endsProp: Number,
-    setsProp: Number,
-    colour: String,
+    number: String,
     fontSize: String,
     fontColour: String,
   },
@@ -132,7 +124,6 @@ export default {
 
 .count {
   font-family: clock-look;
-  color: yellow;
   text-align: center;
   stroke: solid;
   background-color: black;

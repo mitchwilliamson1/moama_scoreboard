@@ -11,8 +11,9 @@
                 <option value="2">Team 2</option>
               </select>
             </div>
+
             <div class="col-3" v-for="player, index in details['competitors']">
-              <label class="form-label">Team {{n}} Score</label>
+              <label class="form-label">Team {{index + 1}} Score</label>
               <select class="form-select" v-model="player.score">
                 <option v-for="n, index in 100" :value="index">{{index}}</option>
               </select>
@@ -26,29 +27,33 @@
             </div>
 
             <div class="col-3">
+              <label class="form-label">Competition</label>
+              <select class="form-select" v-model="details.competition">
+                <option v-for="competition in gameOptions['competition']" :value="competition">{{competition.competition}}</option>
+              </select>
             </div>
 
             <div class="col-3" v-for="player, index in details['competitors']">
-              <label class="form-label">Team {{n}} Display</label>
+              <label class="form-label">Team {{index + 1}} Display</label>
               <select class="form-select" v-model="player.display">
                 <option v-for="display in gameOptions['display']" :value="display">{{display.display}}</option>
               </select>
             </div>
 
             <div class="col-3">
-              <label class="form-label">Sponsor</label>
-              <select class="form-select" v-model="details.sponsor">
-                <option v-for="sponsor in gameOptions['sponsor']" :value="sponsor">{{sponsor.sponsor}}</option>
+              <label class="form-label">Ends</label>
+              <select class="form-select" v-model="details.ends">
+                <option v-for="n, index in 151" :value="index">{{index}}</option>
               </select>
             </div>
           </div>
 
           <div class="row p-3">
             <div class="col-6">
-              <button type="submit" @click="updateGame" class="btn btn-primary">Update</button>
+              <button type="submit" @click="finishGame" class="btn btn-danger">Finish Game</button>
             </div>
             <div class="col-6">
-              <button type="submit" @click="finishGame" class="btn btn-primary">Finish Game</button>
+              <button type="submit" @click="updateGame" class="btn btn-primary">Update</button>
             </div>
           </div>
 

@@ -22,7 +22,7 @@
         </div>
         <div class="offcanvas-body">
           <div class="row p-1" v-for="item, key in state.init">
-            <div class="row" v-if="key != 'display' && key != 'create_game'">
+            <div class="row" v-if="key != 'display' && key != 'create_game' && key != 'sponsor'">
               <div class="col-4">{{capitalise(key)}}</div>
               <select v-model="state.init.create_game[0][key]" 
                       class="form-select col" :class="state.formatGame[key]">
@@ -93,7 +93,7 @@
               <div class="col-2 fw-bold">Game</div>
               <div class="col-3 fw-bold">Team 1</div>
               <div class="col-3 fw-bold">Team 2</div>
-              <div class="col-2 fw-bold">Sponsor</div>
+              <div class="col-2 fw-bold">Ends</div>
               <div class="col-2 fw-bold">Rink</div>
             </div>
           </div>

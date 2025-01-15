@@ -1,28 +1,35 @@
 <template>
-  <div class="h-100 w-100" style="background-color: black;">
-    <div class="container p-0 h-100 w-100">
-      <div class="row h-50 w-100 m-0 p-0">
-        <template v-for="board in state.scoreboards">
-          <div class="col  w-100 h-100 m-1">
-            <Scoreboard class="" :detail="board"/>
-          </div>
-        </template>
-      </div>
-    </div>
+  <div v-if="state.data" class="h-100 w-100" style="background-color: black;">
+    <BPLLayout v-if="state.data['layout'] == 'BPL'" 
+        :scoreboards="state.data['scoreboards']" />
+    <BowlsLayout v-else-if="state.data['layout'] == 'General Scoreboard (8) Rinks'" 
+        :scoreboards="state.data['scoreboards']" />
+    <FourRinkLayout v-else-if="state.data['layout'] == 'Premier Pennant (4) Rinks & Masterboard'" 
+        :scoreboards="state.data['scoreboards']" 
+        :masterboard="state.data['masterboard']" />
+    <TwoByThreeRinkAndMaster v-else-if="state.data['layout'] == '(2) Pennant Games with (3) Rinks & Masterboard'" 
+        :scoreboards="state.data['scoreboards']" 
+        :masterboard="state.data['masterboard']" />
   </div>
 </template>
 
 <script>
 import { reactive, onMounted } from "vue";
 import axios from 'axios'
-import Scoreboard from './Scoreboard.vue'
-
+import BPLLayout from './BPLLayout.vue'
+import BowlsLayout from './BowlsLayout.vue'
+import FourRinkLayout from './FourRinkLayout.vue'
+import TwoByThreeRinkAndMaster from './TwoByThreeRinkAndMaster.vue'
 
 export default {
   name: 'Backboard',
   components: {
-    Scoreboard,
+    BPLLayout,
+    BowlsLayout,
+    FourRinkLayout,
+    TwoByThreeRinkAndMaster,
   },
+
   data(){
     return{
       path: "",
@@ -30,7 +37,7 @@ export default {
   },
   setup() {
     const state = reactive({
-      scoreboards: null,
+      data: null,
     });
 
     var path = ""
@@ -48,7 +55,7 @@ export default {
       axios.get(path+'get_scoreboards')
       .then(function (response) {
         if (response.status == 200){
-          state.scoreboards = response.data
+          state.data = response.data
         }
       })
       .catch(function (error) {
